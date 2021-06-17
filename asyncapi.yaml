@@ -1,0 +1,162 @@
+asyncapi: 2.0.0
+info:
+  title: Hotel Management API
+  version: 0.0.1
+servers:
+  dev:
+    url: ws://localhost:3000
+    protocol: ws
+
+defaultContentType: application/json
+
+channels:
+
+  guest/commands/register:
+    publish:
+      summary: Register an account for a guest
+      operationId: RegisterGuestCommand
+      message:
+        headers:
+          $ref: '#/components/schemas/command-headers'
+        payload:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+
+
+  guest/events/registered:
+    subscribe:
+      summary: A guest registered for an account
+      operationId: GuestRegisteredEvent
+      message:
+        headers:
+          $ref: '#/components/schemas/event-headers'
+        payload:
+          $ref: '#/channels/guest~1commands~1register'
+
+
+  hotel/commands/book-guest:
+    publish:
+      summary: Book a guest for a hotel stay
+      operationId: BookHotelGuestCommand
+      message:
+        headers:
+          $ref: '#/components/schemas/command-headers'
+        payload:
+          type: object
+          properties:
+            guestId:
+              type: string
+            bookingId:
+              type: string
+            checkin:
+              type: string
+              format: date
+            checkout:
+              type: string
+              format: date
+            roomClass:
+              type: string
+
+  hotel/events/guest-booked:
+    subscribe:
+      summary: A guest booked a stay in a hotel.
+      operationId: HotelGuestBookedEvent
+      message:
+        headers:
+          $ref: '#/components/schemas/event-headers'
+        payload:
+          $ref: '#/channels/hotel~1commands~1book-guest'
+
+
+  views/hotel-bookings/{hotelId}:
+    parameters:
+      hotelId:
+        schema:
+          type: string
+    subscribe:
+      summary: Current bookings in a given hotel
+      operationId: HotelBookingsView
+      message:
+        payload:
+          type: array
+          items:
+            type: object
+            properties:
+              bookingId:
+                type: string
+              guest:
+                type: object
+                properties:
+                  fullName:
+                    type: string
+                  guestSince:
+                    type: string
+                    format: date
+                  guestId:
+                    type: string
+              requestedRoomClass:
+                type: string
+              checkin:
+                type: string
+                format: date
+              checkout:
+                type: string
+                format: date
+
+components:
+  schemas:
+    shared-headers:
+      type: object
+      properties:
+        entity:
+          type: string
+          description: The name of the entity type, such as 'cart' or 'table'.
+        key:
+          type: string
+          description: A business key used to identify a specific instance of an entity. Does not need to be globally
+            unique but must be unique enough to define a specific entity instance.
+        actor:
+          type: string
+          description: The actor identifies who created the command or event.
+        causationId:
+          type: string
+          format: uuid
+          description: Id of the command or event that caused this item to be created.
+        correlationId:
+          type: string
+          format: uuid
+          description: A Client-generated UUID identifying a set of operations. This value, if present, will be applied
+            to generated events and policy-driven commands and events. A client can reuse a correlationId across
+            multiple commands to group them together.
+      required:
+        - entity
+        - key
+
+    command-headers:
+      allOf:
+        - $ref: '#/components/schemas/shared-headers'
+      properties:
+        commandId:
+          type: string
+          format: uuid
+          description: A Client-generated UUID identifying the command. This value is used as the causationId in an event.
+            Subscribers to this channel should ignore previously-seen commands with the same commandId to allow for
+            at-least-once delivery of commands.
+      required:
+        - commandId
+
+    event-headers:
+      allOf:
+        - $ref: '#/components/schemas/shared-headers'
+      properties:
+        eventId:
+          type: string
+          format: uuid
+      required:
+        - eventId
