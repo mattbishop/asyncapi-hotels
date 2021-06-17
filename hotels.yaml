@@ -13,7 +13,7 @@ channels:
 
   guest/commands/register:
     publish:
-      summary: Register an account for a guest
+      summary: Register an account for a guest.
       operationId: RegisterGuestCommand
       message:
         headers:
@@ -31,7 +31,7 @@ channels:
 
   guest/events/registered:
     subscribe:
-      summary: A guest registered for an account
+      summary: A guest registered for an account.
       operationId: GuestRegisteredEvent
       message:
         headers:
@@ -42,7 +42,7 @@ channels:
 
   hotel/commands/book-guest:
     publish:
-      summary: Book a guest for a hotel stay
+      summary: Book a guest for a hotel stay.
       operationId: BookHotelGuestCommand
       message:
         headers:
@@ -80,7 +80,7 @@ channels:
         schema:
           type: string
     subscribe:
-      summary: Current bookings in a given hotel
+      summary: Current bookings in a given hotel.
       operationId: HotelBookingsView
       message:
         payload:

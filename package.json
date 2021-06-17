@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "generate": "ag asyncapi.yaml @asyncapi/nodejs-template -o output -p server=dev --force-write"
+    "generate": "ag hotels.yaml @asyncapi/nodejs-template -o output -p server=dev --force-write"
   },
   "dependencies": {
     "@asyncapi/generator": "^1.7.2"
